@@ -1,0 +1,7 @@
+{
+  "name": "Levi's AI Background Swap",
+  "description": "An immersive AI experience by Levi's to swap your photo's background with creative scenes.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
