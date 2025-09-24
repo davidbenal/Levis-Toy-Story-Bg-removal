@@ -48,7 +48,8 @@ const CameraComponent: React.FC<{ onCapture: (data: string) => void }> = ({ onCa
                 canvasRef.current.width = videoRef.current.videoWidth;
                 canvasRef.current.height = videoRef.current.videoHeight;
                 context.drawImage(videoRef.current, 0, 0);
-                onCapture(canvasRef.current.toDataURL('image/jpeg'));
+                // Use toDataURL with quality 1.0 to get the best possible JPEG quality.
+                onCapture(canvasRef.current.toDataURL('image/jpeg', 1.0));
             }
         }
     };
@@ -81,7 +82,7 @@ const PhotoPreview: React.FC<{ image: string; onConfirm: () => void; onRetake: (
     return (
         <div className="flex flex-col items-center space-y-6 w-full">
             <h2 className="text-3xl font-display">Sua Foto Perfeita</h2>
-            <img src={image} alt="Preview" className="w-full max-w-md aspect-square object-cover rounded-lg shadow-lg" />
+            <img src={image} alt="Preview" className="w-full max-w-md aspect-square object-contain rounded-lg shadow-lg bg-black" />
             <div className="flex space-x-4 w-full max-w-md">
                 <button onClick={onRetake} className="flex-1 flex items-center justify-center gap-2 bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors">
                     <RefreshIcon />
@@ -115,13 +116,39 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({ onConfirm }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (typeof e.target?.result === 'string') {
-                handleSetPreview(e.target.result);
-            }
-        };
-        reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (typeof e.target?.result === 'string') {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Create a square canvas based on the largest dimension of the image
+            const size = Math.max(img.width, img.height);
+            canvas.width = size;
+            canvas.height = size;
+
+            // Fill the canvas with a black background (for letterboxing)
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, size, size);
+
+            // Calculate the position to draw the image so it's centered
+            const x = (size - img.width) / 2;
+            const y = (size - img.height) / 2;
+
+            // Draw the original image onto the centered, square canvas
+            ctx.drawImage(img, x, y);
+
+            // Get the new base64 string of the letterboxed image
+            const croppedImageData = canvas.toDataURL('image/jpeg', 1.0);
+            handleSetPreview(croppedImageData);
+          };
+          img.src = e.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
