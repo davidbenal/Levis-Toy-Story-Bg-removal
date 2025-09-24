@@ -33,13 +33,15 @@ const Modal: React.FC<{ children: React.ReactNode, onClose: () => void, title: s
 const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) => {
   const [modalContent, setModalContent] = useState<'qr' | 'link' | null>(null);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [showDownloadSuccessModal, setShowDownloadSuccessModal] = useState<boolean>(false);
 
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = finalImage;
     link.download = 'levis-ai-background.png';
     document.body.appendChild(link);
-    link.click();
+    link.click(); // Trigger the download
+    setShowDownloadSuccessModal(true); // Show success modal after download
     document.body.removeChild(link);
   };
 
@@ -68,7 +70,6 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
         await navigator.share(shareData);
       } catch (error) {
         console.error('Erro ao compartilhar:', error);
-        // Fallback to download if sharing fails
         handleDownload();
       }
     } else {
@@ -134,8 +135,24 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
                     <button onClick={() => setShowConfirmation(false)} className="flex-1 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
                         Cancelar
                     </button>
-                    <button onClick={handleConfirmRestart} className="flex-1 bg-levis-red text-white font-bold py-2 px-4 rounded-lg hover:bg-[#d72c48] transition-colors">
+                    <button onClick={handleConfirmRestart} className="flex-1 bg-levis-red text-white font-bold py-2 px-4 rounded-lg bg-[#d72c48] transition-colors">
                         Sim, criar outra
+                    </button>
+                </div>
+            </Modal>
+        )}
+        {showDownloadSuccessModal && (
+            <Modal onClose={() => setShowDownloadSuccessModal(false)} title="Download Concluído!">
+                <p className="text-gray-300 mb-6">
+                    Sua foto incrível foi salva com sucesso na sua galeria! 🎉
+                    Que tal criar uma nova obra-prima?
+                </p>
+                <div className="flex space-x-4">
+                    <button onClick={() => setShowDownloadSuccessModal(false)} className="flex-1 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+                        Fechar
+                    </button>
+                    <button onClick={() => { setShowDownloadSuccessModal(false); onRestart(); }} className="flex-1 bg-levis-indigo text-white font-bold py-2 px-4 rounded-lg bg-[#4a6a8c] transition-colors">
+                        Gerar Nova Imagem
                     </button>
                 </div>
             </Modal>

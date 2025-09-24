@@ -74,9 +74,10 @@ export const generateSwappedBackground = async (userImageBase64WithMime: string,
 3.  **Masterful Lighting:**
     *   Analyze the light source (direction, color, softness) from the environment image.
     *   Completely relight the subject to match this light. This includes casting realistic, soft shadows from the subject onto the environment.
-    *   Add subtle bounce light from the environment back onto the subject to truly ground them in the scene.
-4.  **Harmonious Color Grading:** Apply a final color grade to the entire image to ensure perfect color harmony between the subject and the environment.
-5.  **Final Output:** The result must be a single, photorealistic composition that feels like a genuine moment captured on camera. Output *only* the final image in a 9:16 vertical aspect ratio.`;
+    *   Add subtle bounce light from the environment back onto the subject to truly ground them in the scene.7
+4.  **Remove Unwanted Details from the Subject Image:** If the first image contains any objects, props, or details that do not belong to the person (e.g., items lying around, background clutter, or artifacts), remove them seamlessly so they do not appear in the final composition. Ensure the person remains untouched and their pose, expression, and proportions are preserved.
+5.  **Harmonious Color Grading:** Apply a final color grade to the entire image to ensure perfect color harmony between the subject and the environment.
+6.  **Final Output:** The result must be a single, photorealistic composition that feels like a genuine moment captured on camera. Output *only* the final image in a 9:16 vertical aspect ratio.`;
     
     if (background.id === 'cardboard-box') {
         prompt = `You are a creative director for a high-fashion photoshoot. Your task is to create a single, stunning photograph based on the provided assets.

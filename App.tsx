@@ -20,7 +20,7 @@ const App: React.FC = () => {
     setSelectedBg(null);
     setFinalImage(null);
     setError(null);
-    setStep(Step.Landing);
+    setStep(Step.Capture);
   }, []);
 
   const handleStart = useCallback(() => setStep(Step.Capture), []);
