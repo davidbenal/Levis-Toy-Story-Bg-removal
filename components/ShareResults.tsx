@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DownloadIcon, LinkIcon, QRIcon, RefreshIcon } from './common/Icons';
+import { DownloadIcon, ShareIcon, QRIcon, RefreshIcon } from './common/Icons';
 import ActionButton from './common/ActionButton';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -49,7 +49,33 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
   };
   
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(finalImage)}`;
-  const shareLink = "https://levis-ai.example.com/share/12345";
+  
+  const handleShare = async () => {
+    // Convert base64 to File
+    const res = await fetch(finalImage);
+    const blob = await res.blob();
+    const file = new File([blob], 'levis-ai-photo.png', { type: blob.type });
+
+    const shareData = {
+      title: "Minha foto Levi's AI",
+      text: "Veja a foto incrível que eu criei com a Levi's!",
+      files: [file],
+    };
+
+    // Check if the browser supports the Web Share API and can share files
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error('Erro ao compartilhar:', error);
+        // Fallback to download if sharing fails
+        handleDownload();
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API (like desktop browsers)
+      setModalContent('link');
+    }
+  };
 
   return (
     <div className="flex flex-col items-center space-y-6 text-center">
@@ -57,28 +83,27 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
       <div className="relative w-full max-w-md">
         <img src={finalImage} alt="Final generated" className="rounded-lg shadow-2xl w-full" />
       </div>
-      <div className="w-full max-w-md grid grid-cols-2 gap-3">
-        <button onClick={handleDownload} className="flex items-center justify-center gap-2 bg-[#003d82] p-3 rounded-lg hover:bg-[#0052a8] transition-colors">
+      <div className="w-full max-w-md grid grid-cols-2 gap-4">
+        <button onClick={handleDownload} className="flex items-center justify-center gap-2 bg-levis-indigo p-3 rounded-lg bg-[#395775] transition-colors">
             <DownloadIcon />
             <span className="font-semibold">Baixar</span>
         </button>
+        <button onClick={handleShare} className="flex items-center justify-center gap-2 bg-levis-red p-3 rounded-lg bg-[#C41230] transition-colors">
+            <ShareIcon />
+            <span className="font-semibold">Compartilhar</span>
+        </button>
+      </div>
+      <div className="w-full max-w-md grid grid-cols-2 gap-4">
         <button onClick={() => setModalContent('qr')} className="flex items-center justify-center gap-2 bg-[#7cb342] p-3 rounded-lg hover:bg-[#8bc34a] transition-colors">
             <QRIcon />
             <span className="font-semibold">QR Code</span>
         </button>
-        <button onClick={() => setModalContent('link')} className="col-span-2 flex items-center justify-center gap-2 bg-[#cc2936] p-3 rounded-lg hover:bg-[#e52e3e] transition-colors">
-            <LinkIcon />
-            <span className="font-semibold">Gerar Link de Compartilhamento</span>
-        </button>
-      </div>
-
-      <div className="pt-4 w-full max-w-sm">
-        <ActionButton onClick={() => setShowConfirmation(true)}>
+        <button onClick={() => setShowConfirmation(true)} className="flex items-center justify-center gap-2 bg-gray-600 p-3 rounded-lg hover:bg-gray-700 transition-colors">
             <div className="flex items-center justify-center gap-2">
                 <RefreshIcon />
                 <span>Criar Outra</span>
             </div>
-        </ActionButton>
+          </button>
       </div>
 
       <AnimatePresence>
@@ -91,9 +116,13 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
             </Modal>
         )}
         {modalContent === 'link' && (
-            <Modal onClose={() => setModalContent(null)} title="Link Compartilhável">
-                <input type="text" readOnly value={shareLink} className="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 text-center" />
-                <button onClick={() => navigator.clipboard.writeText(shareLink)} className="mt-4 bg-[#ffcc02] text-[#003d82] font-bold py-2 px-4 rounded w-full">Copiar Link</button>
+            <Modal onClose={() => setModalContent(null)} title="Compartilhamento não suportado">
+                <p className="text-gray-300 mb-4">
+                    Seu navegador não suporta o compartilhamento direto. Use o botão "Baixar" ou o QR Code para salvar sua imagem.
+                </p>
+                <button onClick={() => setModalContent(null)} className="mt-4 bg-levis-indigo text-white font-bold py-2 px-4 rounded w-full bg-[#4a6a8c] transition-colors">
+                  Entendi
+                </button>
             </Modal>
         )}
         {showConfirmation && (
@@ -105,7 +134,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
                     <button onClick={() => setShowConfirmation(false)} className="flex-1 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
                         Cancelar
                     </button>
-                    <button onClick={handleConfirmRestart} className="flex-1 bg-[#cc2936] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e52e3e] transition-colors">
+                    <button onClick={handleConfirmRestart} className="flex-1 bg-levis-red text-white font-bold py-2 px-4 rounded-lg hover:bg-[#d72c48] transition-colors">
                         Sim, criar outra
                     </button>
                 </div>
