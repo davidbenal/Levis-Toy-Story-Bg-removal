@@ -47,7 +47,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       </main>
 
       <footer className="text-xs text-gray-500 pt-8">
-        <p>Termos de Uso | Política de Privacidade</p>
+        <div className="flex justify-center space-x-4">
+          <a href="/terms" className="hover:text-gray-300 transition-colors">
+            Termos de Uso
+          </a>
+          <span>|</span>
+          <a href="/privacy" className="hover:text-gray-300 transition-colors">
+            Política de Privacidade
+          </a>
+        </div>
         <p>&copy; 2024 Levi's. Todos os direitos reservados.</p>
       </footer>
     </div>

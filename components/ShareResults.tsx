@@ -32,6 +32,7 @@ const Modal: React.FC<{ children: React.ReactNode, onClose: () => void, title: s
 
 const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) => {
   const [modalContent, setModalContent] = useState<'qr' | 'link' | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
 
   const handleDownload = () => {
     const link = document.createElement('a');
@@ -40,6 +41,11 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleConfirmRestart = () => {
+    setShowConfirmation(false);
+    onRestart();
   };
   
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(finalImage)}`;
@@ -67,7 +73,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
       </div>
 
       <div className="pt-4 w-full max-w-sm">
-        <ActionButton onClick={onRestart}>
+        <ActionButton onClick={() => setShowConfirmation(true)}>
             <div className="flex items-center justify-center gap-2">
                 <RefreshIcon />
                 <span>Criar Outra</span>
@@ -88,6 +94,21 @@ const ShareResults: React.FC<ShareResultsProps> = ({ finalImage, onRestart }) =>
             <Modal onClose={() => setModalContent(null)} title="Link Compartilhável">
                 <input type="text" readOnly value={shareLink} className="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 text-center" />
                 <button onClick={() => navigator.clipboard.writeText(shareLink)} className="mt-4 bg-[#ffcc02] text-[#003d82] font-bold py-2 px-4 rounded w-full">Copiar Link</button>
+            </Modal>
+        )}
+        {showConfirmation && (
+            <Modal onClose={() => setShowConfirmation(false)} title="Tem certeza?">
+                <p className="text-gray-300 mb-6">
+                    Ao criar uma nova foto, a imagem atual será perdida para sempre. Deseja continuar?
+                </p>
+                <div className="flex space-x-4">
+                    <button onClick={() => setShowConfirmation(false)} className="flex-1 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button onClick={handleConfirmRestart} className="flex-1 bg-[#cc2936] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e52e3e] transition-colors">
+                        Sim, criar outra
+                    </button>
+                </div>
             </Modal>
         )}
       </AnimatePresence>
