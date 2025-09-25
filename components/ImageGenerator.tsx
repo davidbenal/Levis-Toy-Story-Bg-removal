@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Background } from '../types';
-import { generateSwappedBackground } from '../services/geminiService';
+import { generateImageWithGemini } from '../services/geminiService';
 import LoadingSpinner from './common/LoadingSpinner';
 
 interface ImageGeneratorProps {
@@ -15,7 +15,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ userImage, background, 
   useEffect(() => {
     const generate = async () => {
       try {
-        const result = await generateSwappedBackground(userImage, background);
+        const result = await generateImageWithGemini(userImage, background);
         onSuccess(result);
       } catch (error) {
         if (error instanceof Error) {
