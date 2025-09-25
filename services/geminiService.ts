@@ -2,7 +2,9 @@
 import { Background } from '../types';
 
 // A URL para o seu novo servidor back-end
-const API_URL = 'http://localhost:3001/api/generate';
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 
 /**
  * Envia uma imagem e um fundo para o servidor back-end para processamento pelo Gemini.
